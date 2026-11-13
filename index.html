@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es-MX">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Actividades | Inclusive</title>
+<title>Activities | Inclusive</title>
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -114,39 +114,39 @@ footer{padding:30px 0 46px;color:var(--mute);font-size:13px;text-align:center}
 <header>
   <div class="wrap bar">
     <a class="logo" href="#top"><img src="assets/logo.png" alt="Inclusive"></a>
-    <a class="cart-btn" href="#checkout">Carrito <span class="n zero" id="count">0</span></a>
+    <a class="cart-btn" href="#checkout">Cart <span class="n zero" id="count">0</span></a>
   </div>
 </header>
 
 <main class="wrap" id="top">
   <section class="intro">
-    <h1>Actividades para su viaje</h1>
-    <p>Elijan lo que les gustaría hacer en cada ciudad. Agréguenlo al carrito y al final envíennos su selección.</p>
+    <h1>Activities for your trip</h1>
+    <p>Pick what you would like to do in each city. Add it to your cart, then send us your selection at the end.</p>
   </section>
 
   <div class="filters" id="fType"></div>
   <div class="filters" id="fCity"></div>
 
-  <div id="list"><p class="loading">Cargando actividades…</p></div>
+  <div id="list"><p class="loading">Loading activities…</p></div>
 
   <section id="checkout">
-    <h2>Su selección</h2>
-    <p class="sub">Revisen lo que eligieron. No se hace ningún pago aquí.</p>
+    <h2>Your selection</h2>
+    <p class="sub">Review what you picked. No payment is made here.</p>
     <div class="filters" id="fCo"></div>
     <div class="co">
       <div class="lines" id="lines"></div>
       <aside class="sum">
         <h3>Total</h3>
         <div id="totals"></div>
-        <button class="send" id="send">Enviar mi selección</button>
+        <button class="send" id="send">Send my selection</button>
         <p class="msg" id="msg" hidden></p>
-        <p class="note">Los totales se muestran en la moneda original de cada actividad.</p>
+        <p class="note">Totals are shown in each activity's original currency.</p>
       </aside>
     </div>
   </section>
 </main>
 
-<footer>Inclusive · Viajes</footer>
+<footer>Inclusive · Travel</footer>
 
 <script>
 /* ---------- Settings ---------- */
@@ -184,7 +184,7 @@ function toNumber(v){
   const n = parseFloat(String(v).replace(/[^0-9.,]/g, '').replace(/,(?=\d{3}\b)/g, '').replace(',', '.'));
   return isFinite(n) ? n : null;
 }
-const money = (n, cur) => n.toLocaleString('es-MX', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}) + ' ' + cur;
+const money = (n, cur) => n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}) + ' ' + cur;
 
 /* ---------- State ---------- */
 let items = [];
@@ -200,7 +200,7 @@ fetch(CSV_URL, {cache: 'no-store'})
     items = parseCSV(t)
       .filter(r => norm(r.activo) !== 'no' && r.id && r.actividad)
       .map(r => {
-        const free = norm(r.tipo).startsWith('grat');
+        const free = /^(free|grat)/.test(norm(r.tipo));
         return {
           id: r.id, city: r.ciudad, name: r.actividad, free,
           price: free ? 0 : toNumber(r.precio), cur: (r.moneda || '').toUpperCase(),
@@ -211,26 +211,26 @@ fetch(CSV_URL, {cache: 'no-store'})
     cart = cart.filter(id => items.some(i => i.id === id));
     save(); renderFilters(); renderList(); renderCart();
   })
-  .catch(() => { $('#list').innerHTML = '<p class="loading">No pudimos cargar las actividades. Intenten de nuevo en un momento.</p>'; });
+  .catch(() => { $('#list').innerHTML = '<p class="loading">We could not load the activities. Please try again in a moment.</p>'; });
 
 /* ---------- Filters ---------- */
 function chips(el, opts, cur, set){
   el.innerHTML = opts.map(([v, l]) => `<button class="chip${v === cur ? ' on' : ''}" data-v="${esc(v)}">${esc(l)}</button>`).join('');
   el.onclick = e => { const b = e.target.closest('.chip'); if (b) set(b.dataset.v); };
 }
-const TYPES = [['todas','Todas'],['gratis','Gratis'],['pago','De pago']];
+const TYPES = [['todas','All'],['gratis','Free'],['pago','Paid']];
 function renderFilters(){
   chips($('#fType'), TYPES, typeF, v => { typeF = v; renderFilters(); renderList(); });
   const cities = [...new Set(items.map(i => i.city))];
-  chips($('#fCity'), [['todas','Todas las ciudades'], ...cities.map(c => [c, c])], cityF, v => { cityF = v; renderFilters(); renderList(); });
+  chips($('#fCity'), [['todas','All cities'], ...cities.map(c => [c, c])], cityF, v => { cityF = v; renderFilters(); renderList(); });
   chips($('#fCo'), TYPES, coF, v => { coF = v; renderFilters(); renderCart(); });
 }
 const passType = (i, f) => f === 'todas' || (f === 'gratis' ? i.free : !i.free);
 
 /* ---------- List ---------- */
 function priceHTML(i){
-  if (i.free) return '<div class="price">Gratis</div>';
-  if (i.price == null) return '<div class="price tbd">Precio por confirmar</div>';
+  if (i.free) return '<div class="price">Free</div>';
+  if (i.price == null) return '<div class="price tbd">Check on site</div>';
   return `<div class="price">${money(i.price, i.cur)}${i.per ? `<small>${esc(i.per)}</small>` : ''}</div>`;
 }
 function card(i){
@@ -239,26 +239,26 @@ function card(i){
   const many = i.photos.length > 1;
   const ph = i.photos.length
     ? `<div class="track">${i.photos.map((u, k) => `<img src="${esc(u)}" alt="${esc(i.name)}${many ? ' ' + (k+1) : ''}" loading="lazy">`).join('')}</div>` +
-      (many ? `<button class="arr l" data-dir="-1" aria-label="Foto anterior">‹</button><button class="arr r" data-dir="1" aria-label="Foto siguiente">›</button>` +
+      (many ? `<button class="arr l" data-dir="-1" aria-label="Previous photo">‹</button><button class="arr r" data-dir="1" aria-label="Next photo">›</button>` +
         `<span class="count">1/${i.photos.length}</span><div class="dots">${i.photos.map((_, k) => `<span class="${k ? '' : 'on'}"></span>`).join('')}</div>` : '')
-    : '<div class="noimg">Foto próximamente</div>';
+    : '<div class="noimg">Photo coming soon</div>';
   return `<article class="card" data-id="${esc(i.id)}">
-    <div class="ph">${ph}<span class="tag ${i.free ? 'free' : 'paid'}">${i.free ? 'Gratis' : 'De pago'}</span></div>
+    <div class="ph">${ph}<span class="tag ${i.free ? 'free' : 'paid'}">${i.free ? 'Free' : 'Paid'}</span></div>
     <div class="body">
       <h3>${esc(i.name)}</h3>
       ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
       ${i.desc ? `<p class="desc">${esc(i.desc)}</p>` : '<p class="desc"></p>'}
-      <div class="foot">${priceHTML(i)}<button class="add${inCart ? ' in' : ''}" data-add="${esc(i.id)}">${inCart ? 'Agregado ✓' : 'Agregar al carrito'}</button></div>
+      <div class="foot">${priceHTML(i)}<button class="add${inCart ? ' in' : ''}" data-add="${esc(i.id)}">${inCart ? 'Added ✓' : 'Add to cart'}</button></div>
     </div>
   </article>`;
 }
 function renderList(){
   const shown = items.filter(i => passType(i, typeF) && (cityF === 'todas' || i.city === cityF));
-  if (!shown.length){ $('#list').innerHTML = '<p class="loading">No hay actividades con estos filtros.</p>'; return; }
+  if (!shown.length){ $('#list').innerHTML = '<p class="loading">No activities match these filters.</p>'; return; }
   const byCity = {};
   shown.forEach(i => (byCity[i.city] = byCity[i.city] || []).push(i));
   $('#list').innerHTML = Object.entries(byCity).map(([c, arr]) =>
-    `<section class="city"><h2>${esc(c)} <span>${arr.length} ${arr.length === 1 ? 'actividad' : 'actividades'}</span></h2><div class="grid">${arr.map(card).join('')}</div></section>`
+    `<section class="city"><h2>${esc(c)} <span>${arr.length} ${arr.length === 1 ? 'activity' : 'activities'}</span></h2><div class="grid">${arr.map(card).join('')}</div></section>`
   ).join('');
 }
 $('#list').addEventListener('click', e => {
@@ -297,17 +297,17 @@ function renderCart(){
     <div class="line">
       ${i.photos[0] ? `<img src="${esc(i.photos[0])}" alt="">` : '<div class="th"></div>'}
       <div class="t"><b>${esc(i.name)}</b><span>${esc(i.city)}${i.date ? ' · ' + esc(i.date) : ''}</span></div>
-      <div><div class="p">${i.free ? 'Gratis' : i.price == null ? 'Por confirmar' : money(i.price, i.cur)}</div><button class="x" data-add="${esc(i.id)}">Quitar</button></div>
+      <div><div class="p">${i.free ? 'Free' : i.price == null ? 'Check on site' : money(i.price, i.cur)}</div><button class="x" data-add="${esc(i.id)}">Remove</button></div>
     </div>`).join('')
-    : `<div class="empty">${n ? 'No hay actividades de este tipo en su carrito.' : 'Su carrito está vacío. Agreguen actividades desde la lista de arriba.'}</div>`;
+    : `<div class="empty">${n ? 'No activities of this type in your cart.' : 'Your cart is empty. Add activities from the list above.'}</div>`;
   const {t, tbd} = totals(list);
   const free = list.filter(i => i.free).length;
   const curs = Object.keys(t);
   $('#totals').innerHTML =
     (curs.length ? curs.map(c => `<div class="row tot"><span>Total ${esc(c)}</span><span>${money(t[c], c)}</span></div>`).join('') : `<div class="row tot"><span>Total</span><span>0</span></div>`) +
-    `<div class="row muted"><span>Actividades</span><span>${list.length}</span></div>` +
-    (free ? `<div class="row muted"><span>Gratis</span><span>${free}</span></div>` : '') +
-    (tbd ? `<div class="row muted"><span>Precio por confirmar</span><span>${tbd}</span></div>` : '');
+    `<div class="row muted"><span>Activities</span><span>${list.length}</span></div>` +
+    (free ? `<div class="row muted"><span>Free</span><span>${free}</span></div>` : '') +
+    (tbd ? `<div class="row muted"><span>Check on site</span><span>${tbd}</span></div>` : '');
   $('#send').disabled = !n;
 }
 $('#lines').addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) toggle(b.dataset.add); });
@@ -318,16 +318,16 @@ $('#send').addEventListener('click', async () => {
   const {t, tbd} = totals(all);
   const payload = {
     viajero: new URLSearchParams(location.search).get('t') || '',
-    actividades: all.map(i => `${i.id} · ${i.city} · ${i.name} · ${i.free ? 'Gratis' : i.price == null ? 'Por confirmar' : money(i.price, i.cur)}`).join('\n'),
-    totales: Object.keys(t).map(c => money(t[c], c)).join(' + ') + (tbd ? ` (+${tbd} por confirmar)` : '')
+    actividades: all.map(i => `Row ${i.id} · ${i.city} · ${i.name} · ${i.free ? 'Free' : i.price == null ? 'Check on site' : money(i.price, i.cur)}`).join('\n'),
+    totales: Object.keys(t).map(c => money(t[c], c)).join(' + ') + (tbd ? ` (+${tbd} check on site)` : '')
   };
-  if (!ORDER_URL){ msg.textContent = 'Vista previa: aquí se guardaría su selección en la hoja.'; console.log(payload); return; }
+  if (!ORDER_URL){ msg.textContent = 'Preview: your selection would be saved here.'; console.log(payload); return; }
   $('#send').disabled = true;
   try {
     await fetch(ORDER_URL, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(payload)});
-    msg.textContent = '¡Listo! Recibimos su selección.';
+    msg.textContent = 'Done! We received your selection.';
   } catch(e){
-    msg.className = 'msg err'; msg.textContent = 'No se pudo enviar. Intenten de nuevo.';
+    msg.className = 'msg err'; msg.textContent = 'Could not send. Please try again.';
   }
   $('#send').disabled = false;
 });
