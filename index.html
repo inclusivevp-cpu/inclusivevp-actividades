@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Actividades | Inclusive</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0A0A;--raise:#151312;--raise-2:#1D1A18;--ink:#F4EFE9;--mute:#A8A09A;
+  --coral:#DE6E62;--peach:#F4A08E;--line:rgba(244,239,233,.12);--ok:#7BC59A;
+  --body:'DM Sans',-apple-system,system-ui,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:rgba(11,10,10,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo img{height:34px;width:auto}
+.cart-btn{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--raise-2);border:1px solid var(--line);font-weight:600;font-size:15px}
+.cart-btn .n{min-width:22px;height:22px;border-radius:11px;background:var(--coral);color:#fff;font-size:13px;display:grid;place-items:center;padding:0 6px}
+.cart-btn .n.zero{background:var(--raise);color:var(--mute)}
+
+/* Intro */
+.intro{padding:40px 0 8px}
+.intro h1{font-size:clamp(30px,5vw,46px);line-height:1.1;font-weight:700;letter-spacing:-.02em}
+.intro p{color:var(--mute);margin-top:10px;max-width:560px}
+
+/* Filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding:22px 0 6px}
+.filters + .filters{padding-top:4px}
+.chip{padding:8px 15px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:500;color:var(--mute);background:transparent;transition:.15s}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* Grid */
+.city{margin-top:34px}
+.city h2{font-size:22px;font-weight:700;margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+.city h2 span{font-size:14px;font-weight:500;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.card{background:var(--raise);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.ph{position:relative;aspect-ratio:4/3;background:var(--raise-2);overflow:hidden}
+.track{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.arr{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgba(11,10,10,.6);color:#fff;font-size:18px;display:grid;place-items:center;backdrop-filter:blur(6px)}
+.arr.l{left:10px}.arr.r{right:10px}
+.count{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:rgba(11,10,10,.72)}
+.ph .noimg{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);font-size:14px}
+.tag{position:absolute;top:12px;left:12px;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:rgba(11,10,10,.72);backdrop-filter:blur(6px)}
+.tag.free{color:var(--ok)}
+.tag.paid{color:var(--peach)}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
+.dots span.on{background:#fff}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.body h3{font-size:18px;line-height:1.3;font-weight:600}
+.meta{font-size:13.5px;color:var(--mute);margin-top:6px}
+.desc{font-size:14.5px;color:#D6CFC8;margin-top:10px;flex:1}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.price{font-weight:700;font-size:17px}
+.price small{display:block;font-weight:400;font-size:12.5px;color:var(--mute)}
+.price.tbd{font-size:14px;font-weight:500;color:var(--mute)}
+.add{padding:10px 16px;border-radius:999px;background:var(--coral);color:#fff;font-weight:600;font-size:14px;white-space:nowrap;transition:.15s}
+.add:hover{filter:brightness(1.08)}
+.add.in{background:transparent;border:1px solid var(--ok);color:var(--ok)}
+
+/* Checkout */
+#checkout{scroll-margin-top:72px;margin:64px 0 40px;padding:28px 0 0;border-top:1px solid var(--line)}
+#checkout h2{font-size:28px;font-weight:700}
+#checkout .sub{color:var(--mute);margin-top:4px}
+.co{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-top:18px;align-items:start}
+.lines{display:flex;flex-direction:column;gap:10px}
+.line{display:flex;gap:14px;align-items:center;background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:10px}
+.line img,.line .th{width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--raise-2);flex:none}
+.line .t{flex:1;min-width:0}
+.line .t b{display:block;font-weight:600;font-size:15px;line-height:1.3}
+.line .t span{font-size:13px;color:var(--mute)}
+.line .p{font-weight:600;font-size:15px;text-align:right;white-space:nowrap}
+.line .x{color:var(--mute);font-size:13px;text-decoration:underline;margin-top:2px}
+.empty{color:var(--mute);padding:26px;border:1px dashed var(--line);border-radius:14px;text-align:center}
+.sum{background:var(--raise);border:1px solid var(--line);border-radius:18px;padding:20px;position:sticky;top:84px}
+.sum h3{font-size:17px;font-weight:600;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;padding:7px 0;font-size:15px}
+.row.tot{font-weight:700;font-size:18px;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.row.muted{color:var(--mute);font-size:13.5px}
+.sum label{display:block;font-size:13px;color:var(--mute);margin:14px 0 5px}
+.sum input{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
+.sum .send{width:100%;margin-top:16px;padding:13px;border-radius:999px;background:var(--coral);color:#fff;font-weight:600}
+.sum .send:disabled{opacity:.45;cursor:default}
+.sum .msg{font-size:14px;margin-top:10px;color:var(--ok)}
+.sum .msg.err{color:var(--peach)}
+.note{font-size:12.5px;color:var(--mute);margin-top:10px}
+footer{padding:30px 0 46px;color:var(--mute);font-size:13px;text-align:center}
+.loading{color:var(--mute);padding:60px 0;text-align:center}
+
+@media (max-width:820px){
+  .co{grid-template-columns:1fr}
+  .sum{position:static}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#top"><img src="assets/logo.png" alt="Inclusive"></a>
+    <a class="cart-btn" href="#checkout">Carrito <span class="n zero" id="count">0</span></a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <section class="intro">
+    <h1>Actividades para su viaje</h1>
+    <p>Elijan lo que les gustaría hacer en cada ciudad. Agréguenlo al carrito y al final envíennos su selección.</p>
+  </section>
+
+  <div class="filters" id="fType"></div>
+  <div class="filters" id="fCity"></div>
+
+  <div id="list"><p class="loading">Cargando actividades…</p></div>
+
+  <section id="checkout">
+    <h2>Su selección</h2>
+    <p class="sub">Revisen lo que eligieron. No se hace ningún pago aquí.</p>
+    <div class="filters" id="fCo"></div>
+    <div class="co">
+      <div class="lines" id="lines"></div>
+      <aside class="sum">
+        <h3>Total</h3>
+        <div id="totals"></div>
+        <button class="send" id="send">Enviar mi selección</button>
+        <p class="msg" id="msg" hidden></p>
+        <p class="note">Los totales se muestran en la moneda original de cada actividad.</p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer>Inclusive · Viajes</footer>
+
+<script>
+/* ---------- Settings ---------- */
+// Published CSV of the "Web" tab (File > Share > Publish to web > Web > CSV).
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTenNx3I38U5BNxUV2MMP2jeEozdVhzhXwysfzWft7aOsM23wanVXfaRjfhtzC88L9GBR3dpeMSoDR1/pub?gid=1584131894&single=true&output=csv';
+// Apps Script web app that writes each selection to the "Pedidos" tab.
+const ORDER_URL = 'https://script.google.com/macros/s/AKfycbzRFSPG8oi0Uur_F7TuHWCy2RvDIHMix0qdT6_BoXU5N415Hy5DUZIz6z4kBNL2sWJ7Cg/exec';
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+function parseCSV(text){
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"' && text[i+1] === '"'){ cell += '"'; i++; }
+      else if (c === '"') q = false;
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r'){
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  const head = rows.shift().map(h => norm(h));
+  return rows.filter(r => r.some(v => v.trim())).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));
+}
+
+function toNumber(v){
+  const n = parseFloat(String(v).replace(/[^0-9.,]/g, '').replace(/,(?=\d{3}\b)/g, '').replace(',', '.'));
+  return isFinite(n) ? n : null;
+}
+const money = (n, cur) => n.toLocaleString('es-MX', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}) + ' ' + cur;
+
+/* ---------- State ---------- */
+let items = [];
+let typeF = 'todas', cityF = 'todas', coF = 'todas';
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem('inclusive-cart') || '[]'); } catch(e) {}
+const save = () => { try { localStorage.setItem('inclusive-cart', JSON.stringify(cart)); } catch(e) {} };
+
+/* ---------- Load ---------- */
+fetch(CSV_URL, {cache: 'no-store'})
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+  .then(t => {
+    items = parseCSV(t)
+      .filter(r => norm(r.activo) !== 'no' && r.id && r.actividad)
+      .map(r => {
+        const free = norm(r.tipo).startsWith('grat');
+        return {
+          id: r.id, city: r.ciudad, name: r.actividad, free,
+          price: free ? 0 : toNumber(r.precio), cur: (r.moneda || '').toUpperCase(),
+          per: r.precio_por, date: r.fecha, time: r.horario, desc: r.descripcion,
+          photos: (r.foto || '').split(/\s*(?:,|\s+y\s+)\s*/).filter(u => /^https?:\/\//.test(u))
+        };
+      });
+    cart = cart.filter(id => items.some(i => i.id === id));
+    save(); renderFilters(); renderList(); renderCart();
+  })
+  .catch(() => { $('#list').innerHTML = '<p class="loading">No pudimos cargar las actividades. Intenten de nuevo en un momento.</p>'; });
+
+/* ---------- Filters ---------- */
+function chips(el, opts, cur, set){
+  el.innerHTML = opts.map(([v, l]) => `<button class="chip${v === cur ? ' on' : ''}" data-v="${esc(v)}">${esc(l)}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('.chip'); if (b) set(b.dataset.v); };
+}
+const TYPES = [['todas','Todas'],['gratis','Gratis'],['pago','De pago']];
+function renderFilters(){
+  chips($('#fType'), TYPES, typeF, v => { typeF = v; renderFilters(); renderList(); });
+  const cities = [...new Set(items.map(i => i.city))];
+  chips($('#fCity'), [['todas','Todas las ciudades'], ...cities.map(c => [c, c])], cityF, v => { cityF = v; renderFilters(); renderList(); });
+  chips($('#fCo'), TYPES, coF, v => { coF = v; renderFilters(); renderCart(); });
+}
+const passType = (i, f) => f === 'todas' || (f === 'gratis' ? i.free : !i.free);
+
+/* ---------- List ---------- */
+function priceHTML(i){
+  if (i.free) return '<div class="price">Gratis</div>';
+  if (i.price == null) return '<div class="price tbd">Precio por confirmar</div>';
+  return `<div class="price">${money(i.price, i.cur)}${i.per ? `<small>${esc(i.per)}</small>` : ''}</div>`;
+}
+function card(i){
+  const inCart = cart.includes(i.id);
+  const meta = [i.date, i.time].filter(Boolean).join(' · ');
+  const many = i.photos.length > 1;
+  const ph = i.photos.length
+    ? `<div class="track">${i.photos.map((u, k) => `<img src="${esc(u)}" alt="${esc(i.name)}${many ? ' ' + (k+1) : ''}" loading="lazy">`).join('')}</div>` +
+      (many ? `<button class="arr l" data-dir="-1" aria-label="Foto anterior">‹</button><button class="arr r" data-dir="1" aria-label="Foto siguiente">›</button>` +
+        `<span class="count">1/${i.photos.length}</span><div class="dots">${i.photos.map((_, k) => `<span class="${k ? '' : 'on'}"></span>`).join('')}</div>` : '')
+    : '<div class="noimg">Foto próximamente</div>';
+  return `<article class="card" data-id="${esc(i.id)}">
+    <div class="ph">${ph}<span class="tag ${i.free ? 'free' : 'paid'}">${i.free ? 'Gratis' : 'De pago'}</span></div>
+    <div class="body">
+      <h3>${esc(i.name)}</h3>
+      ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
+      ${i.desc ? `<p class="desc">${esc(i.desc)}</p>` : '<p class="desc"></p>'}
+      <div class="foot">${priceHTML(i)}<button class="add${inCart ? ' in' : ''}" data-add="${esc(i.id)}">${inCart ? 'Agregado ✓' : 'Agregar al carrito'}</button></div>
+    </div>
+  </article>`;
+}
+function renderList(){
+  const shown = items.filter(i => passType(i, typeF) && (cityF === 'todas' || i.city === cityF));
+  if (!shown.length){ $('#list').innerHTML = '<p class="loading">No hay actividades con estos filtros.</p>'; return; }
+  const byCity = {};
+  shown.forEach(i => (byCity[i.city] = byCity[i.city] || []).push(i));
+  $('#list').innerHTML = Object.entries(byCity).map(([c, arr]) =>
+    `<section class="city"><h2>${esc(c)} <span>${arr.length} ${arr.length === 1 ? 'actividad' : 'actividades'}</span></h2><div class="grid">${arr.map(card).join('')}</div></section>`
+  ).join('');
+}
+$('#list').addEventListener('click', e => {
+  const add = e.target.closest('[data-add]');
+  if (add){ toggle(add.dataset.add); return; }
+  const arr = e.target.closest('.arr');
+  if (arr){
+    const t = arr.closest('.ph').querySelector('.track');
+    const n = t.children.length, k = Math.round(t.scrollLeft / t.clientWidth);
+    t.scrollTo({left: ((k + +arr.dataset.dir + n) % n) * t.clientWidth, behavior: 'smooth'});
+  }
+});
+$('#list').addEventListener('scroll', e => {
+  const t = e.target; if (!t.classList || !t.classList.contains('track')) return;
+  const k = Math.round(t.scrollLeft / t.clientWidth), ph = t.closest('.ph');
+  const c = ph.querySelector('.count'); if (c) c.textContent = `${k+1}/${t.children.length}`;
+  ph.querySelectorAll('.dots span').forEach((d, j) => d.classList.toggle('on', j === k));
+}, true);
+function toggle(id){
+  cart = cart.includes(id) ? cart.filter(x => x !== id) : [...cart, id];
+  save(); renderList(); renderCart();
+}
+
+/* ---------- Cart / checkout ---------- */
+function totals(list){
+  const t = {}; let tbd = 0;
+  list.forEach(i => { if (i.free) return; if (i.price == null) { tbd++; return; } t[i.cur] = (t[i.cur] || 0) + i.price; });
+  return {t, tbd};
+}
+function renderCart(){
+  const n = cart.length;
+  $('#count').textContent = n; $('#count').classList.toggle('zero', !n);
+  const all = cart.map(id => items.find(i => i.id === id)).filter(Boolean);
+  const list = all.filter(i => passType(i, coF));
+  $('#lines').innerHTML = list.length ? list.map(i => `
+    <div class="line">
+      ${i.photos[0] ? `<img src="${esc(i.photos[0])}" alt="">` : '<div class="th"></div>'}
+      <div class="t"><b>${esc(i.name)}</b><span>${esc(i.city)}${i.date ? ' · ' + esc(i.date) : ''}</span></div>
+      <div><div class="p">${i.free ? 'Gratis' : i.price == null ? 'Por confirmar' : money(i.price, i.cur)}</div><button class="x" data-add="${esc(i.id)}">Quitar</button></div>
+    </div>`).join('')
+    : `<div class="empty">${n ? 'No hay actividades de este tipo en su carrito.' : 'Su carrito está vacío. Agreguen actividades desde la lista de arriba.'}</div>`;
+  const {t, tbd} = totals(list);
+  const free = list.filter(i => i.free).length;
+  const curs = Object.keys(t);
+  $('#totals').innerHTML =
+    (curs.length ? curs.map(c => `<div class="row tot"><span>Total ${esc(c)}</span><span>${money(t[c], c)}</span></div>`).join('') : `<div class="row tot"><span>Total</span><span>0</span></div>`) +
+    `<div class="row muted"><span>Actividades</span><span>${list.length}</span></div>` +
+    (free ? `<div class="row muted"><span>Gratis</span><span>${free}</span></div>` : '') +
+    (tbd ? `<div class="row muted"><span>Precio por confirmar</span><span>${tbd}</span></div>` : '');
+  $('#send').disabled = !n;
+}
+$('#lines').addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) toggle(b.dataset.add); });
+
+$('#send').addEventListener('click', async () => {
+  const msg = $('#msg'); msg.hidden = false; msg.className = 'msg';
+  const all = cart.map(id => items.find(i => i.id === id)).filter(Boolean);
+  const {t, tbd} = totals(all);
+  const payload = {
+    viajero: new URLSearchParams(location.search).get('t') || '',
+    actividades: all.map(i => `${i.id} · ${i.city} · ${i.name} · ${i.free ? 'Gratis' : i.price == null ? 'Por confirmar' : money(i.price, i.cur)}`).join('\n'),
+    totales: Object.keys(t).map(c => money(t[c], c)).join(' + ') + (tbd ? ` (+${tbd} por confirmar)` : '')
+  };
+  if (!ORDER_URL){ msg.textContent = 'Vista previa: aquí se guardaría su selección en la hoja.'; console.log(payload); return; }
+  $('#send').disabled = true;
+  try {
+    await fetch(ORDER_URL, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(payload)});
+    msg.textContent = '¡Listo! Recibimos su selección.';
+  } catch(e){
+    msg.className = 'msg err'; msg.textContent = 'No se pudo enviar. Intenten de nuevo.';
+  }
+  $('#send').disabled = false;
+});
+</script>
+</body>
+</html>
