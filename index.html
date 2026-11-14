@@ -47,6 +47,11 @@ header{position:sticky;top:0;z-index:20;background:rgba(11,10,10,.88);backdrop-f
 .city{margin-top:34px}
 .city h2{font-size:22px;font-weight:700;margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
 .city h2 span{font-size:14px;font-weight:500;color:var(--mute)}
+.slot{margin:26px 0 12px;font-size:16px;font-weight:600;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.slot span{font-size:13.5px;font-weight:500;color:var(--mute)}
+.howto{font-size:14px;color:var(--mute);margin:-4px 0 4px;max-width:640px}
+.clash{font-size:13px;color:var(--peach);margin-top:8px}
+.warn{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--peach);color:var(--peach);font-size:13.5px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
 .card{background:var(--raise);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
 .ph{position:relative;aspect-ratio:4/3;background:var(--raise-2);overflow:hidden}
@@ -138,6 +143,7 @@ footer{padding:30px 0 46px;color:var(--mute);font-size:13px;text-align:center}
       <aside class="sum">
         <h3>Total</h3>
         <div id="totals"></div>
+        <div id="clash"></div>
         <button class="send" id="send">Send my selection</button>
         <p class="msg" id="msg" hidden></p>
         <p class="note">Totals are shown in each activity's original currency.</p>
@@ -186,6 +192,22 @@ function toNumber(v){
 }
 const money = (n, cur) => n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}) + ' ' + cur;
 
+/* ---------- Times ---------- */
+// First clock time in a "horario" text (ranges like 9:00 am-12:00 pm are windows, so they are ignored).
+function parseStart(t){
+  t = String(t || '');
+  if (!t || /[-–]/.test(t)) return null;
+  const re = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/gi; const found = []; let m;
+  while ((m = re.exec(t))) found.push({h: +m[1], m: +(m[2] || 0), ap: (m[3] || '').toLowerCase()});
+  if (!found.length) return null;
+  const at = k => { const ap = found[k].ap || (found.slice(k).find(x => x.ap) || {}).ap; let h = found[k].h % 12; if (ap === 'pm') h += 12; return h * 60 + found[k].m; };
+  return {first: at(0), last: at(found.length - 1)};
+}
+const fmtT = n => { const h = Math.floor(n / 60) % 24, m = n % 60; return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'pm' : 'am'); };
+const fmtD = n => { const h = Math.floor(n / 60), m = n % 60; return (h ? h + ' h' : '') + (h && m ? ' ' : '') + (m ? m + ' min' : ''); };
+const timed = i => i.start != null && i.dur > 0 && i.date;
+const overlap = (a, b) => timed(a) && timed(b) && a.id !== b.id && a.date === b.date && a.start < b.start + b.dur && b.start < a.start + a.dur;
+
 /* ---------- State ---------- */
 let items = [];
 let typeF = 'todas', cityF = 'todas', coF = 'todas';
@@ -206,6 +228,7 @@ fetch(CSV_URL, {cache: 'no-store'})
           id: r.id, city: r.ciudad, name: r.actividad, free,
           price: free ? 0 : toNumber(r.precio), cur: (r.moneda || '').toUpperCase(),
           per: r.precio_por, date: r.fecha, time: r.horario, desc: r.descripcion,
+          dur: toNumber(r.duracion_min) || 0, start: (parseStart(r.horario) || {}).first ?? null, lastStart: (parseStart(r.horario) || {}).last ?? null,
           photos: (r.foto || '').split(/\s*(?:,|\s+y\s+)\s*/).filter(u => /^https?:\/\//.test(u))
         };
       });
@@ -240,6 +263,8 @@ function priceHTML(i){
 function card(i){
   const inCart = cart.includes(i.id);
   const meta = [i.date, i.time].filter(Boolean).join(' · ');
+  const dur = i.dur ? `Duration ${fmtD(i.dur)}${i.start != null ? ' · ends about ' + fmtT(i.start + i.dur) : ''}` : '';
+  const clashes = items.filter(o => overlap(i, o));
   const many = i.photos.length > 1;
   const ph = i.photos.length
     ? `<div class="track">${i.photos.map((u, k) => `<img src="${esc(u)}" alt="${esc(i.name)}${many ? ' ' + (k+1) : ''}" loading="lazy">`).join('')}</div>` +
@@ -251,6 +276,8 @@ function card(i){
     <div class="body">
       <h3>${esc(i.name)}</h3>
       ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
+      ${dur ? `<div class="meta">${esc(dur)}</div>` : ''}
+      ${clashes.length ? `<div class="clash">Overlaps with ${clashes.length} other ${clashes.length === 1 ? 'activity' : 'activities'} in this time slot</div>` : ''}
       ${i.desc ? `<p class="desc">${esc(i.desc)}</p>` : '<p class="desc"></p>'}
       <div class="foot">${priceHTML(i)}<button class="add${inCart ? ' in' : ''}" data-add="${esc(i.id)}">${inCart ? 'Added ✓' : 'Add to cart'}</button></div>
     </div>
@@ -261,9 +288,23 @@ function renderList(){
   if (!shown.length){ $('#list').innerHTML = '<p class="loading">No activities match these filters.</p>'; return; }
   const byCity = {};
   shown.forEach(i => (byCity[i.city] = byCity[i.city] || []).push(i));
-  $('#list').innerHTML = Object.entries(byCity).map(([c, arr]) =>
-    `<section class="city"><h2>${esc(c)} <span>${arr.length} ${arr.length === 1 ? 'activity' : 'activities'}</span></h2><div class="grid">${arr.map(card).join('')}</div></section>`
-  ).join('');
+  const grid = a => `<div class="grid">${a.map(card).join('')}</div>`;
+  $('#list').innerHTML = Object.entries(byCity).map(([c, arr]) => {
+    const tm = arr.filter(timed);
+    let body;
+    if (!tm.length) body = grid(arr);
+    else {
+      const slotOf = i => i.start < 720 ? 'Morning' : i.start < 1020 ? 'Afternoon' : 'Evening';
+      const keys = []; const g = {};
+      tm.slice().sort((a, b) => a.start - b.start).forEach(i => { const k = i.date + '|' + slotOf(i); if (!g[k]) { g[k] = []; keys.push(k); } g[k].push(i); });
+      body = `<p class="howto">Activities in the same time slot overlap, so pick one per slot. Check each duration to see what fits in your day.</p>` +
+        keys.map(k => { const a = g[k], lo = Math.min(...a.map(x => x.start)), hi = Math.max(...a.map(x => x.lastStart ?? x.start));
+          return `<h3 class="slot">${esc(k.replace('|', ' · '))} <span>${lo === hi ? 'starts ' + fmtT(lo) : 'starts between ' + fmtT(lo) + ' and ' + fmtT(hi)}</span></h3>${grid(a)}`; }).join('');
+      const rest = arr.filter(i => !timed(i));
+      if (rest.length) body += `<h3 class="slot">Other activities <span>no fixed start time</span></h3>${grid(rest)}`;
+    }
+    return `<section class="city"><h2>${esc(c)} <span>${arr.length} ${arr.length === 1 ? 'activity' : 'activities'}</span></h2>${body}</section>`;
+  }).join('');
 }
 $('#list').addEventListener('click', e => {
   const add = e.target.closest('[data-add]');
@@ -312,6 +353,9 @@ function renderCart(){
     `<div class="row muted"><span>Activities</span><span>${list.length}</span></div>` +
     (free ? `<div class="row muted"><span>Free</span><span>${free}</span></div>` : '') +
     (tbd ? `<div class="row muted"><span>Check on site</span><span>${tbd}</span></div>` : '');
+  const pairs = [];
+  all.forEach((a, x) => all.slice(x + 1).forEach(b => { if (overlap(a, b)) pairs.push([a, b]); }));
+  $('#clash').innerHTML = pairs.map(([a, b]) => `<div class="warn">Time clash on ${esc(a.date)}: "${esc(a.name)}" and "${esc(b.name)}" run at the same time. You can still send your selection and we will help you choose.</div>`).join('');
   $('#send').disabled = !n;
 }
 $('#lines').addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) toggle(b.dataset.add); });
@@ -323,6 +367,7 @@ $('#send').addEventListener('click', async () => {
   const payload = {
     viajero: new URLSearchParams(location.search).get('t') || '',
     actividades: all.map(i => `Row ${i.id} · ${i.city} · ${i.name} · ${i.free ? 'Free' : i.price == null ? 'Check on site' : money(i.price, i.cur)}`).join('\n'),
+    notas: all.some((a, x) => all.slice(x + 1).some(b => overlap(a, b))) ? 'TIME CLASH in selection' : '',
     totales: Object.keys(t).map(c => money(t[c], c)).join(' + ') + (tbd ? ` (+${tbd} check on site)` : '')
   };
   if (!ORDER_URL){ msg.textContent = 'Preview: your selection would be saved here.'; console.log(payload); return; }
