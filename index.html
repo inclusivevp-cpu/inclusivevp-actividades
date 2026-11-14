@@ -210,8 +210,9 @@ function parseStart(t){
 }
 const fmtT = n => { const h = Math.floor(n / 60) % 24, m = n % 60; return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'pm' : 'am'); };
 const fmtD = n => { const h = Math.floor(n / 60), m = n % 60; return (h ? h + ' h' : '') + (h && m ? ' ' : '') + (m ? m + ' min' : ''); };
-const timed = i => i.start != null && i.dur > 0 && i.date;
-const overlap = (a, b) => timed(a) && timed(b) && a.id !== b.id && a.date === b.date && a.start < b.start + b.dur && b.start < a.start + a.dur;
+const timed = i => i.start != null && i.date;  // has a fixed start time (used for grouping)
+const hasDur = i => timed(i) && i.dur > 0;  // also has a duration (used for overlap checks)
+const overlap = (a, b) => hasDur(a) && hasDur(b) && a.id !== b.id && a.date === b.date && a.start < b.start + b.dur && b.start < a.start + a.dur;
 
 /* ---------- State ---------- */
 let items = [];
