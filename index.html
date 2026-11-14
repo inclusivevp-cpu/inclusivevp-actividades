@@ -47,6 +47,10 @@ header{position:sticky;top:0;z-index:20;background:rgba(11,10,10,.88);backdrop-f
 .city{margin-top:34px}
 .city h2{font-size:22px;font-weight:700;margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
 .city h2 span{font-size:14px;font-weight:500;color:var(--mute)}
+[hidden]{display:none!important}
+.tabs{display:flex;gap:8px;padding:20px 0 0;border-bottom:1px solid var(--line)}
+.tab{padding:10px 18px;font-size:15px;font-weight:600;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--coral)}
 .slot{margin:26px 0 12px;font-size:16px;font-weight:600;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .slot span{font-size:13.5px;font-weight:500;color:var(--mute)}
 .howto{font-size:14px;color:var(--mute);margin:-4px 0 4px;max-width:640px}
@@ -129,6 +133,7 @@ footer{padding:30px 0 46px;color:var(--mute);font-size:13px;text-align:center}
     <p>Pick what you would like to do in each city. Add it to your cart, then send us your selection at the end.</p>
   </section>
 
+  <div class="tabs" id="tabs"></div>
   <div class="filters" id="fType"></div>
   <div class="filters" id="fCity"></div>
 
@@ -210,6 +215,10 @@ const overlap = (a, b) => timed(a) && timed(b) && a.id !== b.id && a.date === b.
 
 /* ---------- State ---------- */
 let items = [];
+// Needs Booking tab: paid Rovaniemi activities. ?view=booking opens only that tab (no tab bar), for travelers who should pick only from it.
+const isBook = i => norm(i.city) === 'rovaniemi' && !i.free;
+const LOCK = new URLSearchParams(location.search).get('view') === 'booking';
+let tab = LOCK ? 'book' : 'all';
 let typeF = 'todas', cityF = 'todas', coF = 'todas';
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem('inclusive-cart') || '[]'); } catch(e) {}
@@ -247,6 +256,10 @@ function chips(el, opts, cur, set){
 }
 const TYPES = [['todas','All'],['gratis','Free'],['pago','Paid']];
 function renderFilters(){
+  $('#tabs').hidden = LOCK;
+  $('#tabs').innerHTML = [['all','All activities'],['book','Needs Booking']].map(([v, l]) => `<button class="tab${v === tab ? ' on' : ''}" data-v="${v}">${l}</button>`).join('');
+  $('#tabs').onclick = e => { const b = e.target.closest('.tab'); if (b){ tab = b.dataset.v; renderFilters(); renderList(); } };
+  $('#fType').hidden = $('#fCity').hidden = tab === 'book';
   chips($('#fType'), TYPES, typeF, v => { typeF = v; renderFilters(); renderList(); });
   const cities = [...new Set(items.map(i => i.city))];
   chips($('#fCity'), [['todas','All cities'], ...cities.map(c => [c, c])], cityF, v => { cityF = v; renderFilters(); renderList(); });
@@ -284,12 +297,13 @@ function card(i){
   </article>`;
 }
 function renderList(){
-  const shown = items.filter(i => passType(i, typeF) && (cityF === 'todas' || i.city === cityF));
+  const shown = tab === 'book' ? items.filter(isBook) : items.filter(i => passType(i, typeF) && (cityF === 'todas' || i.city === cityF));
   if (!shown.length){ $('#list').innerHTML = '<p class="loading">No activities match these filters.</p>'; return; }
   const byCity = {};
   shown.forEach(i => (byCity[i.city] = byCity[i.city] || []).push(i));
+  const bookNote = tab === 'book' ? '<p class="howto" style="margin-top:20px">These activities need to be booked in advance. Pick what you would like and we will confirm availability with you.</p>' : '';
   const grid = a => `<div class="grid">${a.map(card).join('')}</div>`;
-  $('#list').innerHTML = Object.entries(byCity).map(([c, arr]) => {
+  $('#list').innerHTML = bookNote + Object.entries(byCity).map(([c, arr]) => {
     const tm = arr.filter(timed);
     let body;
     if (!tm.length) body = grid(arr);
